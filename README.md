@@ -105,6 +105,9 @@ cd ~/Downloads
 
 # Download the K3S install script and run it
 curl -sfL https://get.k3s.io | sh -s - server --write-kubeconfig-mode 644 --no-deploy traefik
+
+# Allow the kubeconfig file to be accessed by kubectl
+mkdir ~/.kube && sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 ```
 
 ### Install Kubernetes Package Manager (Helm)
