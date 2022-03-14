@@ -65,6 +65,8 @@ sudo apt-get install -y code
 
 ### Install Secrets Manager (Bitwarden)
 
+I use BitWarden to manage my secrets and other things that I want to keep secured.
+
 ```
 # Install the bitwarden cli via node package manager
 sudo npm install -g @bitwarden/cli
@@ -72,4 +74,17 @@ sudo npm install -g @bitwarden/cli
 # Test login to bitwarden
 bw login <sign-up email>
 ```
+
+### Install Telecommunications Platform (Discord)
+
+I use Discord to interact through VOIP with my people. This application is heavy, but provides crisp, high-quality audio and video communication.
+
+>> **Note:** If you're looking for more secure, professional ways of communicating via VOIP, you may want to try these open-source alternatives to TeamSpeak: [Matrix](https://matrix.org/) or [Mumble](https://www.mumble.info/).
+
+```
+# Install using Snap
+snap install discord
+```
+
+> **Note:** To remove Discord, use ```sudo snap remove discord```.
 
