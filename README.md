@@ -46,23 +46,6 @@ sudo usermod -aG docker $USER
 sudo service docker start
 ```
 
-### Install Code Editor (Microsoft Visual Studio Code)
-
-I use VSCode as my go-to integrated development environment.
-
-Use the following code to add the VSCode software repository to the Apt package manager, and then install VSCode using Apt.
-
-```
-# Download and add Microsoft's official public PGP key
-wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | sudo apt-key add -
-
-# Add the `stable` Microsoft upstream repository
-sudo add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
-
-# Install VSCode from Apt
-sudo apt-get install -y code
-```
-
 ### Install Secrets Manager (Bitwarden)
 
 I use BitWarden to manage my secrets and other things that I want to keep secured.
@@ -79,7 +62,7 @@ bw login <sign-up email>
 
 I use Discord to interact through VOIP with my people. This application is heavy, but provides crisp, high-quality audio and video communication.
 
->> **Note:** If you're looking for more secure, professional ways of communicating via VOIP, you may want to try these open-source alternatives to TeamSpeak: [Matrix](https://matrix.org/) or [Mumble](https://www.mumble.info/).
+> **Note:** If you're looking for more secure, professional ways of communicating via VOIP, you may want to try these open-source alternatives to TeamSpeak: [Matrix](https://matrix.org/) or [Mumble](https://www.mumble.info/).
 
 ```
 # Install using Snap
@@ -88,3 +71,19 @@ snap install discord
 
 > **Note:** To remove Discord, use ```sudo snap remove discord```.
 
+
+## Optional Packages
+
+### Install Container Orchestrator (Kubernetes) - TO DO
+
+I use Kubernetes to manage container and pod orchestration.
+
+```
+```
+
+### Install Infrastructure Stack Manager (Pulumi) - TO DO
+
+I use Pulumi to manage infrastructure stacks as code.
+
+```
+```
