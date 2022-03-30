@@ -27,6 +27,13 @@ shopt -s checkwinsize
 # match all files and zero or more directories and subdirectories.
 #shopt -s globstar
 
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls -l --color=auto'
+    alias ll='ls -l --color=auto'
+fi
+
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
@@ -127,7 +134,6 @@ function bwol () { local test=$(export BW_SESSION=~/.bw_session) && bw get item 
 # Remove bitwarden sessions older than a day
 if [[ $(find ~/.bw_session -mtime +1 -print) ]]; then rm ~/.bw_session; fi
 
-
 # If bitwarden session already set don't overwrite 
 if [ -n "$BW_SESSION" ]; then echo "Bitwarden set";
 
@@ -137,5 +143,26 @@ elif [ -f ~/.bw_session ]; then export BW_SESSION=$(cat ~/.bw_session);
 # Otherwise unlock to start new session
 else bwu; fi
 
-# Start a tmate session
-tmate
+# Setup prompt
+function color_my_prompt {
+    local __user_and_host="\[\033[01;32m\]\u@\h"
+    local __cur_location="\[\033[01;34m\]\w"
+    local __git_branch_color="\[\033[31m\]"
+    local __git_branch='`git branch 2> /dev/null | grep -e ^* | sed -E  s/^\\\\\*\ \(.+\)$/\(\\\\\1\)\ /`'
+    local __prompt_tail="\[\033[35m\]$"
+    local __last_color="\[\033[00m\]"
+    export PS1="$__user_and_host $__cur_location $__git_branch_color$__git_branch$__prompt_tail$__last_color "
+}
+
+color_my_prompt
+
+# Helper function for tmate pane renaming
+function renamepane {
+    printf '\033]2;%s\033\\' "${1}"
+}
+
+# Try connect to my default tmate socket
+if ! tmate -S /tmp/default.tmate attach; then
+    tmate -S /tmp/default.tmate.tmate new-session -s default -n default -d
+    tmate -S /tmp/default.tmate.tmate attach
+fi
