@@ -59,7 +59,7 @@ We'll need access to the *multiverse* apt repository to get Steam.
 sudo add-apt-repository multiverse
 
 # Install Steam from Apt
-sudo apt install steam
+sudo apt install steam-installer
 ```
 
 ## Optional - Install Infrastructure Tools
