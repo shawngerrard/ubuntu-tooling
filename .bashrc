@@ -167,3 +167,6 @@ if ! tmate -S /tmp/default.tmate attach; then
     tmate -S /tmp/default.tmate.tmate new-session -s default -n default -d
     tmate -S /tmp/default.tmate.tmate attach
 fi
+
+# Add pulumi to the path env var
+export PATH="$PATH:~/.pulumi/bin"
