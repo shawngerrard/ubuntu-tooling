@@ -3,11 +3,17 @@ Set of scripts, configurations, and instructions for reproducing my application 
 
 ## Introduction
 
-I use some standard tools for different things within each Linux environment. I've developed these instructions with 
+I use some standard tools for different things within each Linux environment. 
 
-First, let's ensure that the Apt package manager is up-to-date.
+Let's ensure that the Apt package manager is up-to-date.
 
 ```sudo apt-get update && sudo apt-get upgrade```
+
+## Use Common .bashrc
+
+If not already using a common `bashrc` file, create a symlink using the code below (assuming this repo resides in `~/documents`):
+
+```rm -rf ~/.bashrc && ln -s ~/documents/ubuntu-tooling/.bashrc ~/.bashrc```
 
 ## Install General Tools
 
