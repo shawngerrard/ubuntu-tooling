@@ -1,0 +1,234 @@
+* ubuntu-tooling
+
+Set of scripts, configurations, and instructions for reproducing my application tooling kit for the Ubuntu distribution of the Linux environment.
+
+** Introduction
+
+I use some standard tools for different things within each Linux environment. 
+
+Let's ensure that the Apt package manager is up-to-date.
+
+#+begin_src bash
+sudo apt-get update && sudo apt-get upgrade
+#+end_src
+
+** Use Common .bashrc
+
+If not already using a common ~bashrc~ file, create a symlink using the code below (assuming this repo resides in ~​~/documents~):
+
+#+begin_src bash
+rm -rf ~/.bashrc && ln -s ~/documents/ubuntu-tooling/.bashrc ~/.bashrc
+#+end_src
+
+** Install General Tools
+
+I primarily use these QOL tools and applications through my varying interests.
+
+*** Install standard utilities
+
+Let's install a number of common QOL utilities.
+
+#+begin_src bash
+sudo apt-get install -y git locales curl wget xclip xsel tmux tmate net-tools less wget htop screenfetch zip openssh-client dictd knockd python3-pip apt-transport-https software-properties-common ca-certificates dirmngr xterm xtermcontrol jq
+#+end_src
+
+*** [[https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating][NVM]]
+
+I use Node Version Manager (~nvm~) to manage the install of ~node~ and ~npm~.
+
+#+begin_src bash
+# Download and run the installation script
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+# Verify installation of node by outputting test variable
+command -v nvm
+#+end_src
+
+#+begin_quote
+*Note*: This will install ~nvm~ version 0.39.7. To install a different version, update the version number in the code above. This script will also append some code into ~.bashrc~ so make sure to commit those changes, if necessary.
+#+end_quote
+
+*** [[https://www.npmjs.com/][NPM]] and [[https://nodejs.org/en][Node]]
+
+I use ~npm~ to support the installation of any ~typescript~ modules. I use ~node~ as a compiler for ~typescript~ modules.
+
+To install the latest LTS release of ~node~ and ~npm~, use the following code:
+
+#+begin_src bash
+# Install latest LTS release of npm and node
+nvm install --lts
+
+# Verify installation by outputting npm and node versions
+npm -v && node -v
+#+end_src
+
+#+begin_quote
+*Note*: If you have two versions of ~node~ installed, use ~nvm alias default node~ to set the default version to the "latest" version of ~node~. Similarly, to peg the version to a particular number use ~nvm alias default <version number>~.
+#+end_quote
+
+*** [[https://www.typescriptlang.org/][Typescript]]
+
+I use ~typescript~ as the syntax for programming ~pulumi~ and other things.
+
+We can install ~typescript~ globally (across all users) with the following code:
+
+#+begin_src bash
+npm install -g typescript
+#+end_src
+
+*** TS-Node
+
+I use ~ts-node~ to compile and run ~typescript~ functions from the command line.
+
+Install ~ts-node~ globally with the following:
+
+#+begin_src bash
+npm install -g ts-node
+#+end_src
+
+*** Install Secrets Manager (Bitwarden)
+
+I use BitWarden to manage my secrets and other things that I want to keep secured.
+
+#+begin_src bash
+# Install the bitwarden cli via node package manager
+sudo npm install -g @bitwarden/cli
+
+# Test login to bitwarden
+bw login <sign-up email>
+#+end_src
+
+*** Install Telecommunications Platform (Discord)
+
+I use Discord to interact through VOIP with my people. This application is heavy, but provides crisp, high-quality audio and video communication.
+
+#+begin_quote
+*Note*: If you're looking for more secure, professional ways of communicating via VOIP, you may want to try these open-source alternatives to TeamSpeak: [[https://matrix.org/][Matrix]] or [[https://www.mumble.info/][Mumble]].
+#+end_quote
+
+#+begin_src bash
+# Install using Snap
+snap install discord
+#+end_src
+
+#+begin_quote
+*Note:* To remove Discord, use ~sudo snap remove discord~.
+#+end_quote
+
+*** Install Game Installer Client (Steam)
+
+Last, but certainly not least, I use Steam to obtain and manage my gaming applications.
+
+We'll need access to the *multiverse* apt repository to get Steam.
+
+#+begin_src bash
+# Add the `multiverse` repository to the Apt package manager
+sudo add-apt-repository multiverse
+
+# Install Steam from Apt
+sudo apt install steam-installer
+#+end_src
+
+** Optional - Install Infrastructure Tools
+
+*** Install Container Runtime (Docker)
+
+I use Docker to run containers and create/test Docker images. 
+
+Use the following code to add the Docker software repository to the Apt package manager, and then install Docker using Apt.
+
+#+begin_src bash
+# Navigate to the `Downloads` folder
+cd ~/Downloads
+
+# Download and add Docker's official public PGP key
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+# Add the `stable` channel's Docker upstream repository
+sudo add-apt-repository \
+"deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+$(lsb_release -cs) \
+stable"
+
+# Update the apt package list and install docker packages
+sudo apt-get update -y && sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+
+# Allow your user to access the Docker CLI without needing root access
+sudo usermod -aG docker $USER
+
+# Ensure the docker service is started
+sudo service docker start
+#+end_src
+
+*** Install Container Orchestrator (Kubernetes)
+
+I use Lightweight Kubernetes (K3S) to manage container and pod orchestration. 
+
+I install K3S without Traefik, as I generally like to use Nginx in my setup.
+
+#+begin_src bash
+# Navigate to the `Downloads` folder
+cd ~/Downloads
+
+# Download the K3S install script and run it
+curl -sfL https://get.k3s.io | sh -s - server --write-kubeconfig-mode 644 --no-deploy traefik
+
+# Allow the kubeconfig file to be accessed by kubectl
+mkdir ~/.kube && sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+#+end_src
+
+*** Install Kubernetes Package Manager (Helm)
+
+#+begin_src bash
+# Navigate to the `Downloads` folder
+cd ~/Downloads
+
+# Download the Helm install script
+curl -sfSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+
+# Update permissions to access the script
+chmod 700 get_helm.sh
+
+# Run the Helm install script
+sudo ./get_helm.sh
+#+end_src
+
+*** Install Infrastructure Stack Manager (Pulumi)
+
+I use Pulumi to manage infrastructure stacks as code.
+
+#+begin_src bash
+# Navigate to the `Downloads` folder
+cd ~/Downloads
+
+# Download the Pulumi install script and run it
+curl -fsSL https://get.pulumi.com | sh
+#+end_src
+
+To bring up the Asterion infrastructure, we will need to clone the Git repository and configure our Pulumi setup.
+
+#+begin_src bash
+# Navigate to the `Documents` folder
+cd ~/Documents
+
+# Obtain the Asterion infrastructure
+git clone git@github.com:<username>/asterion-as-code
+
+# Initialize the Pulumi stack
+cd asterion-as-code && pulumi stack init
+
+# Select the Pulumi stack
+pulumi stack select asterion-as-code
+
+# Initialize a Python virtual environment
+python3 -m venv venv
+
+# Activate the environment
+source venv/bin/activate
+
+# Install Pulumi project dependencies
+pip install -r requirements.txt
+
+# Start the Pulumi stack
+pulumi up -y
+#+end_src
