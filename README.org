@@ -32,6 +32,28 @@ Let's install a number of common QOL utilities.
 sudo apt-get install -y git locales curl wget xclip xsel tmux tmate net-tools less wget htop screenfetch zip openssh-client dictd knockd python3-pip apt-transport-https software-properties-common ca-certificates dirmngr xterm xtermcontrol jq
 #+end_src
 
+*** [[https://www.gnu.org/software/gawk/][GAWK]]
+
+I use ~gawk~ for format manipulation of textual standard output, which is useful for formatting output from ~nmap~ (see below) to obtain our server IP address.
+
+#+begin_src bash
+# Install gawk via apt
+sudo apt-get install gawk -y
+#+end_src
+
+*** [[https://nmap.org/][NMAP]]
+
+#+begin_quote
+*Note*: This is not required if your server has a static IP.
+#+end_quote
+
+I use ~nmap~ to scan my network for IP addresses of connected devices. This is important to provide the server host address to the Pulumi configuration on a network governed by DHCP.
+
+#+begin_src bash
+# Install nmap via apt
+sudo apt-get install nmap
+#+end_src
+
 *** [[https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating][NVM]]
 
 I use Node Version Manager (~nvm~) to manage the install of ~node~ and ~npm~.
