@@ -32,6 +32,10 @@ Let's install a number of common QOL utilities.
 sudo apt-get install -y git locales curl wget xclip xsel tmux tmate net-tools less wget htop screenfetch zip openssh-client dictd knockd python3-pip apt-transport-https software-properties-common ca-certificates dirmngr xterm xtermcontrol jq
 #+end_src
 
+*** DOOM Emacs
+
+To install and configure DOOM Emacs, refer to my repository: [[https://github.com/shawngerrard/emacs-setup][emacs-setup]].
+
 *** [[https://www.gnu.org/software/gawk/][GAWK]]
 
 I use ~gawk~ for format manipulation of textual standard output, which is useful for formatting output from ~nmap~ (see below) to obtain our server IP address.
@@ -86,6 +90,10 @@ npm -v && node -v
 
 #+begin_quote
 *Note*: If you have two versions of ~node~ installed, use ~nvm alias default node~ to set the default version to the "latest" version of ~node~. Similarly, to peg the version to a particular number use ~nvm alias default <version number>~.
+#+end_quote
+
+#+begin_quote
+*Note*: If you have two versions of ~node~ installed, and you use ~nvm uninstall <version number>~ to resolve this, and you use Emacs/DOOM, you will need to install and implement [[https://github.com/purcell/exec-path-from-shell][exec-path-from-shell]] into Emacs. Refer to the ~exec-path-from-shell~ lines in my ~init.el~ in my [[https://github.com/shawngerrard/emacs-setup][emacs-setup repository]].
 #+end_quote
 
 *** [[https://www.typescriptlang.org/][Typescript]]
