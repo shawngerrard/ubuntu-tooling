@@ -1,0 +1,354 @@
+#+title: Server Setup
+
+This readme covers setting up a Raspberry Pi (model 4b) with the necessary configurations to run Pulumi stacks over top of Kubernetes clusters.
+
+
+** Preparing the raspberry pi
+We'll install a USB-bootable AARCH64 (ARM) Linux Operating System (Ubuntu) into our Raspberry Pi.
+
+*** Creating an ubuntu disk image
+Aside from physical hardware, you'll need to prepare a USB and SD card with an operating system image.
+
+1. Download and install the official [Raspberry Pi Imager](https://www.raspberrypi.com/software/) to write an OS image to the USB drive.
+
+   #+begin_quote
+**Note:** You're not strictly limited to using the RPI Imager to perform image writing. You could use the ~dd~ command (refer [[https://www.cyberciti.biz/faq/unix-linux-dd-create-make-disk-image-commands/][How to make disk image with dd on Linux or Unix]], which comes pre-built into most Linux images, performs similarly, and suits situations where you might not be able to obtain the RPI Imager.
+   #+end_quote
+
+#+begin_quote
+*Note:* You can use snap to install the imager with ~sudo snap install rpi-imager~, *however* there's RPI-specific dependencies included with this method of installation. I recommend, if using RPI Imager, to download the installer manually and install using your built-in installers. E.G: for Ubuntu, use the application _Ubuntu Software_.
+#+end_quote
+
+2. Write a Linux image to both an SD card and a USB flash drive.
+
+#+begin_quote
+*Note:* For RPI 4B models older purchased during or after 2021, you should only need to write the image to a USB drive as USB boot is enabled in the RPI 4b EEPROM boot order by default.
+#+end_quote
+
+    - The Raspberry Pi OS is the recommended general purpose OS built specifically for use with Raspberry Pi hardware specifications and based upon the Debain Linux distribution. However, we will use the *"Other general-purpose OS"* option to select a 64-bit Ubuntu Desktop (currently 21.10). Please note that you should use a less resource-heavy OS as Desktop distributions may have performance issues related to processing complex graphical environments.
+
+      #+begin_quote
+*Note:* I recommend [[https://ubuntu.com/download/raspberry-pi][downloading the image]] first and using the *"Use custom"* option in the RPI Imager to select the downloaded image. This will significantly increase performance during image writing. If you have issues using a downloaded ISO file, please revert back to using the RPI Imager curated library to select the proper image.
+      #+end_quote
+
+      #+begin_quote
+*Note:* If using the latest version of _Ubuntu (21.10)_, vxlan modules were removed from this distribution into a seperate package ~linux-modules-extra-raspi~. You'll need to install this package to ensure flannel can set up your internal cluster mesh network correctly. To install this package, use the command: ~sudo apt-get install linux-modules-extra-raspi~ before continuing with the rest of the instructions.
+      #+end_quote
+
+3. Make sure to tweak the _Advanced Options_ by clicking the cog. Ensure the following:
+   - You set the _hostname_ to ~homepi~;
+   - _Enable SSH_ is selected;
+   - _Allow public-key authentication only_ is selected (feel free to transfer any public keys into the _authorized keys_ section - note that only one key can be accepted at present!);
+   - _Set username and password_ is selected with a specific username and password;
+
+     #+begin_quote
+*Note:* Do not use the username `admin` else the `cloud-init` file will fail to load user data when you first boot the RPI.
+     #+end_quote
+
+   - _Configure wifi_ is selected with the correct SSID and password, and;
+   - _Eject media when finished_ is deselected - this will enable these settings to be written to the image.
+
+Also, ensure that the sudo/admin password you use to bypass User Access Control prompts is correct - the RPI Imager will initially work if this is wrong, but will fail when writing _config.txt_ with the advanced settings you've set above.
+
+4. When the image has been written to the SD card/USB, put the device into the RPI and power it up!
+
+
+*** Configure default ubuntu boot behaviour
+
+If this is the first time booting up your Raspberry Pi - congratulations!
+
+You likely have an SD card in there. Now, we want to boot the RPI with Ubuntu from our bootable USB. To do this, follow these instructions, however do note that you'll only need to do this **once** as we will be updating the onboard EEPROM on the RPI. For subsequent installations on the same RPI, we should be able to just boot straight from the USB.
+
+Open up *Terminal* and use the following commands to configure your OS environment:
+1. First, ensure all Apt packages are up-to-date (if not already).
+
+#+begin_src bash
+sudo apt-get update
+#+end_src
+
+#+begin_quote
+*Note:* Refer section 'Ensure apt packages are up-to-date' below if you have any problems running this command.
+#+end_quote
+
+2. Install *net-tools* to obtain and/or verify network interface configurations.
+
+#+begin_src bash
+sudo apt-get install net-tools
+#+end_src
+
+3. Install *raspi-config* via Apt so we can tweak the Raspberry Pi system and boot configuration.
+
+#+begin_src bash
+sudo apt-get install raspi-config
+#+end_src
+
+4. Ensure that the EEPROM firmware is all up-to-date.
+
+#+begin_src bash
+sudo rpi-eeprom-update
+#+end_src
+
+5. Update the RPI configuration.
+
+    1. Open the RPI configuration manager.
+
+       #+begin_src bash
+ sudo raspi-config
+       #+end_src
+
+    2. Select *Advanced Options > Boot Order* and select *USB Boot*.
+
+    3. Commit changes and power down the RPI.
+
+       #+begin_quote
+*Note:* It's important that the internal power-off process completes gracefully, so that the updates from the configuration manager can be applied.
+       #+end_quote
+
+       #+begin_quote
+ > **Note:** If you receive the error `no eeprom bin file found for version nnnn-nn-nn` when changing the boot order in `raspi-config`, access the *Advanced Options > Bootloader Version* option and choose either of the default options to update the EEPROM version to latest, and then reboot. You should be able to change the boot order on next startup.
+       #+end_quote
+
+       #+begin_src bash
+sudo shutdown -h now
+       #+end_src
+
+    4. Once the RPI has shut down, remove the SD card and insert the USB flash drive containing our Ubuntu image.
+
+6. Once you've traversed through the initial Ubuntu configuration UI, **repeat steps 1 to 4** above.
+
+** Server configuration and remote access
+
+1. The Ubuntu bootstrapper will take you through the normal installation options and steps - be sure to make note of the username and password you've set! The installation will take several minutes to complete.
+
+2. Once installed, log in using the username and password supplied to the RPI Imager software above.
+
+
+*** Ensure apt packages are up-to-date
+Run the following command to ensure that Ubuntu's apt packages are up-to-date: ~sudo apt-get update~.
+
+If you receive the error *temporary failure resolving 'ports.ubuntu.com'* upon running the update process, ensure the following:
+
+1. That your netplan configuration shows the correct wireless connection details.
+    - Run ~sudo cat /etc/netplan/50-cloud-init.yaml~ and ensure the ~wifis~ and ~ethernets~ sections are correct. You can use the [[examples/50-cloud-init-example.yaml][50-cloud-init-example.yaml]] as a reference to what that should reasonably look like.
+
+      #+begin_quote
+*Note:* Please ensure that the quotation marks around the SSID name in the `access-points` section is preserved!
+      #+end_quote
+
+    - Run `sudo netplan apply` or `reboot now` to allow changes to take effect.
+    - Once restarted, try `sudo apt-get update` again.
+
+
+*** Enable the ssh service
+
+1. Check that the SSH service is running.
+
+   #+begin_src bash
+sudo systemctl status sshd
+   #+end_src
+
+2. If it isn't, start the SSH service and tweak the boot order to enable USB booting.
+
+   - Open the Raspberry Pi configuration manager.
+
+     #+begin_src bash
+sudo raspi-config
+     #+end_src
+
+    - Select *Interface Options* and enable the SSH service.
+
+      #+begin_quote
+*Note:* If you have problems starting the SSH service, it's likely it hasn't been installed on the host machine: `sudo apt-get install openssh-server`
+      #+end_quote
+
+*** Enable ssh key-based authentication
+1. Create SSH key
+
+   #+begin_src bash
+ssh-keygen -t rsa -b 4096 -C "<username>@hostname" -f ~/.ssh/<keyname>
+   #+end_src
+
+2. Copy SSH public key to server and install into authorized_keys.
+
+   #+begin_src bash
+ssh-copy-id -i ~/.ssh/<key/filename>.pub <server username>@<server hostname/ext. ip> -p <external port number>
+   #+end_src
+
+#+begin_quote
+*Note:* Initial host key verification may fail if you've connected to this host before, and the server has a static local IP. We will need to remove the host key entry in our *known_hosts* file with `ssh-keygen -f "/path/to/known_hosts/file" -R "<RPI4 node IP address>"`.
+#+end_quote
+
+#+begin_quote
+*Note:* Use the following code on the host machine to remove *a single* public key from the host that may have erroneously been added:
+
+#+begin_src bash
+sed -i.bak '/REGEX_MATCHING_KEY/d' ~/.ssh/authorized_keys
+#+end_src
+
+#+end_quote
+
+#+begin_quote
+*Note:* Use the following code on the host machine to remove *multiple* public keys from the host that may have erroneously been added:
+
+#+begin_src
+sed -i.bak '/REGEX1/d; /REGEX2/d' ~/.ssh/authorized_keys
+#+end_src
+
+#+end_quote
+
+*** Secure ssh config in rpi
+
+#+begin_quote
+*Note:* Reference [[https://webdock.io/en/docs/how-guides/security-guides/ssh-security-configuration-settings][https://webdock.io/en/docs/how-guides/security-guides/ssh-security-configuration-settings]] and access the SSH configuration file using ~sudo nano /etc/ssh/sshd_config~
+#+end_quote
+
+1. Open SSH config and follow the referenced link above to tweak settings.
+
+2. Once the settings have been configured, restart the SSH service with `sudo systemctl restart sshd`
+
+
+*** Enable ssh remote access on a specific port at the internet gateway
+
+1. Log in to router.
+
+2. Open an external port <PORT NUMBER> on the RPI external IP.
+
+   #+begin_quote
+   *Note:* To get the external IP of a machine, from that machine you can execute the following:
+
+   #+begin_src bash
+curl checkip.amazonaws.com
+   #+end_src
+
+  #+end_quote
+
+3. Forward to internal port 22.
+
+4. Apply changes.
+
+
+*** Test connection
+Connect to the host by specifying the port at which the host accepts SSH traffic.
+
+#+begin_src bash
+ssh -p <external port number> <server username>@<server hostname/ext. ip>
+#+end_src
+
+*** Monitor logs on the server for any dodgy port knocks
+Use the following command to review SSH connection attempts on the network interface of our proposed server.
+
+#+begin_quote
+sudo cat /var/log/auth.log
+#+end_quote
+
+*** Enable ssh remote git access from server
+1. Create an SSH key on the server (see above example).
+
+2. Copy the public key contents, log in to your Github account, and enter the key data into a new PGP key entry under your Github account in _Settings/Encryption Keys/Add New Key_
+
+   #+begin_src bash
+cat ~/.ssh/<public keyname>.pub | clip.exe
+   #+end_src
+
+3. Ensure the SSH-Agent has started and the key has been added to your agent.
+
+   #+begin_src bash
+eval `ssh-agent` && ssh-add ~/.ssh/<key/filename>
+   #+end_src
+
+3. Test the connection.
+
+   #+begin_src bash
+ssh -T git@github.com
+   #+end_src
+
+4. Update git config with identity values.
+
+   #+begin_src bash
+git config --global user.email "<email address>" && git config --global user.name "<user>@<hostname>"
+   #+end_src
+
+5. Clone this repository.
+
+   #+begin_src bash
+git clone git@github.com:shawngerrard/asterion-as-code.git
+   #+end_src
+
+** Configure ubuntu local storage
+
+By default, the RPI Imager will create a volume on the USB flash disk. If you're happy with this, you can skip this section. Otherwise, you'll need to mount any attached volumes to the operating system.
+
+*** Identify attached filesystem device
+
+First, attach your storage if it's not already attached. Then check that your filesystem has been mounted automatically - it's quite likely that it hasn't.
+
+#+begin_src
+# View the list of filesystems currently attached
+df -h
+
+# View the list of partitions for each filesystem
+lsblk
+
+# View the details of attached devices
+sudo fdisk -l
+#+end_src
+
+*** Format and partition attached filesystem
+
+Before we mount the new filesystem device to our server, we must first prepare it for mounting by reformatting and partitioning as necessary.
+
+*If your filesystem has been mounted correctly*, a _mountpoint_ will be associated with the attached filesystem (typically labelled _sda1_ or _sdb1_) in the ~lsblk~ output, and the same filesystem will be present in the ~df -h~ output.
+
+*If your filesystem has *not* been mounted correctly*, we will need to perform the following commands on the RPI server:
+
+#+begin_quote
+*Note:* You can skip the first few commands to follow which erase partitions/filesystems if you do not wish to do this.
+#+end_quote
+
+#+begin_src bash
+# Erase the partitions on the attached volume
+sudo fdisk /dev/<sda/sdb>
+#+end_src
+
+You'll see the FormatDisk menu - you'll need to interact with this to _delete_ ~(d)~ any volume partitions you cannot use.
+
+You can also create a new partition in this menu with the _new_ option ~(n)~.
+
+Make this partition the _primary_ partition ~(p)~.
+
+Finally, write the partition table to the disk ~(w)~.
+
+Once this is done, exit ~ctrl+c~ and reboot ~reboot now~.
+
+*** Mount the filesystem
+
+#+begin_src bash
+# Format the new partition with the `ext4` fs type
+sudo mkfs.ext4 /dev/sda1
+
+# Attach a label to the new partition for easy reference
+sudo e2label /dev/sda1 asterion-fs
+
+# Create the directory on the volume that will be the default location of the mount point path
+cd /mnt/ && sudo mkdir -p data
+
+# Mount the volume to the mount point path set above
+sudo mount /dev/sda1 /mnt/data/
+
+# Confirm the mount process succeeded
+df -h
+#+end_src
+
+*** Enable persistent volume mounting
+
+We've mounted the filesystem, but once we reboot this mount configuration will be lost.
+
+For persistant configuration, we must run the following commands to update ubuntu startup filesystem tables with the mounts we want to persistent:
+
+#+begin_src bash
+# Add mountpoint to the labelled partition in fstab
+echo "LABEL=asterion-fs /mnt/data ext4 defaults,errors=remount-ro 0 1" | sudo tee -a /etc/fstab
+
+# Reboot
+reboot now
+#+end_src

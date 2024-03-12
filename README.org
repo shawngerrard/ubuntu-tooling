@@ -1,5 +1,7 @@
 * ubuntu-tooling
 
+This setup is my personal Ubuntu tooling setup. For my Ubuntu server setup, refer to my guide: [[server-setup.org][server-setup.org]].
+
 Set of scripts, configurations, and instructions for reproducing my application tooling kit for the Ubuntu distribution of the Linux environment.
 
 ** Introduction
