@@ -42,7 +42,7 @@ Aside from physical hardware, you'll need to prepare a USB and SD card with an o
    - _Set username and password_ is selected with a specific username and password;
 
      #+begin_quote
-*Note:* Do not use the username `admin` else the `cloud-init` file will fail to load user data when you first boot the RPI.
+*Note:* Do not use the username ~admin~ else the ~cloud-init~ file will fail to load user data when you first boot the RPI.
      #+end_quote
 
    - _Configure wifi_ is selected with the correct SSID and password, and;
@@ -57,9 +57,10 @@ Also, ensure that the sudo/admin password you use to bypass User Access Control 
 
 If this is the first time booting up your Raspberry Pi - congratulations!
 
-You likely have an SD card in there. Now, we want to boot the RPI with Ubuntu from our bootable USB. To do this, follow these instructions, however do note that you'll only need to do this **once** as we will be updating the onboard EEPROM on the RPI. For subsequent installations on the same RPI, we should be able to just boot straight from the USB.
+You likely have an SD card in there. Now, we want to boot the RPI with Ubuntu from our bootable USB. To do this, follow these instructions, however do note that you'll only need to do this *once* as we will be updating the onboard EEPROM on the RPI. For subsequent installations on the same RPI, we should be able to just boot straight from the USB.
 
 Open up *Terminal* and use the following commands to configure your OS environment:
+
 1. First, ensure all Apt packages are up-to-date (if not already).
 
 #+begin_src bash
@@ -105,7 +106,7 @@ sudo rpi-eeprom-update
        #+end_quote
 
        #+begin_quote
- > **Note:** If you receive the error `no eeprom bin file found for version nnnn-nn-nn` when changing the boot order in `raspi-config`, access the *Advanced Options > Bootloader Version* option and choose either of the default options to update the EEPROM version to latest, and then reboot. You should be able to change the boot order on next startup.
+ > **Note:** If you receive the error ~no eeprom bin file found for version nnnn-nn-nn~ when changing the boot order in ~raspi-config~, access the *Advanced Options > Bootloader Version* option and choose either of the default options to update the EEPROM version to latest, and then reboot. You should be able to change the boot order on next startup.
        #+end_quote
 
        #+begin_src bash
@@ -114,7 +115,7 @@ sudo shutdown -h now
 
     4. Once the RPI has shut down, remove the SD card and insert the USB flash drive containing our Ubuntu image.
 
-6. Once you've traversed through the initial Ubuntu configuration UI, **repeat steps 1 to 4** above.
+6. Once you've traversed through the initial Ubuntu configuration UI, *repeat steps 1 to 4* above.
 
 ** Server configuration and remote access
 
@@ -124,6 +125,7 @@ sudo shutdown -h now
 
 
 *** Ensure apt packages are up-to-date
+
 Run the following command to ensure that Ubuntu's apt packages are up-to-date: ~sudo apt-get update~.
 
 If you receive the error *temporary failure resolving 'ports.ubuntu.com'* upon running the update process, ensure the following:
