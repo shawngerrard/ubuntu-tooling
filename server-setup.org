@@ -135,9 +135,8 @@ If you receive the error *temporary failure resolving 'ports.ubuntu.com'* upon r
 *Note:* Please ensure that the quotation marks around the SSID name in the `access-points` section is preserved!
       #+end_quote
 
-    - Run `sudo netplan apply` or `reboot now` to allow changes to take effect.
-    - Once restarted, try `sudo apt-get update` again.
-
+    - Run ~sudo netplan apply~ or ~reboot now~ to allow changes to take effect.
+    - Once restarted, try ~sudo apt-get update~ again.
 
 *** Enable the ssh service
 
