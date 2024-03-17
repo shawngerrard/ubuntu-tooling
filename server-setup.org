@@ -163,6 +163,7 @@ sudo raspi-config
       #+end_quote
 
 *** Enable ssh key-based authentication
+
 1. Create SSH key
 
    #+begin_src bash
@@ -207,7 +208,6 @@ sed -i.bak '/REGEX1/d; /REGEX2/d' ~/.ssh/authorized_keys
 
 2. Once the settings have been configured, restart the SSH service with `sudo systemctl restart sshd`
 
-
 *** Enable ssh remote access on a specific port at the internet gateway
 
 1. Log in to router.
@@ -226,7 +226,6 @@ curl checkip.amazonaws.com
 3. Forward to internal port 22.
 
 4. Apply changes.
-
 
 *** Test connection
 Connect to the host by specifying the port at which the host accepts SSH traffic.
@@ -352,4 +351,16 @@ echo "LABEL=asterion-fs /mnt/data ext4 defaults,errors=remount-ro 0 1" | sudo te
 
 # Reboot
 reboot now
+#+end_src
+
+** Install additional linux modules for raspberrypi
+
+#+begin_quote
+*Note*: This is required only for running a server configuration on a raspberry pi. For all other server node types, we do not need to do this.
+#+end_quote
+
+We need to install ~linux-modules-extra-raspi~ if we want to use the raspberry pi for server workloads and kubernetes cluster management tools such as ~kubectl~.
+
+#+begin_src bash
+sudo apt install linux-modules-extra-raspi && sudo reboot
 #+end_src
