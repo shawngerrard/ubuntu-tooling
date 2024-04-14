@@ -17,16 +17,20 @@ To get underway we need to enable [[https://docs.microsoft.com/en-us/windows/wsl
 
 #+NAME: Enable the wsl features
 #+BEGIN_SRC shell
-# The vritual machine platform optional feature is required for wsl2
-dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
-
-# Once the virtual machine platform is enabled we can enable wsl2
+# Enable the WSL2 without reboot
 dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+
+# Enable the Virtual Machine Platform
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
 #+END_SRC
 
+#+begin_quote
+*Note*: You may need to set this manually in the *Turn windows features on/off* Windows 10 settings.
+#+end_quote
 
 Once the wsl feature is enabled it is recommended to update the linux kernel package for wsl2.
 
+#+begin_quote
 *Note:* Before proceeding with the installation of WSL 2, you will need to have CPU virtualisation enabled on your machine. Depending on your CPU architecture this may involve updating your bios settings:
 
  - For AMD CPUs, you will look for a feature called: "AMD (AMD Secure Virtual Machine, AMD SVM)"
@@ -34,21 +38,12 @@ Once the wsl feature is enabled it is recommended to update the linux kernel pac
  - For Intel CPUs, you will look for a feature called: "Intel (Intel Virtualization Technology, Intel VT-x)"
 
 Finally, for AMD CPUs you may need to update [[https://www.reddit.com/r/AMDHelp/comments/d4l462/enabling_svm_on_laptop_leads_to_black_boot_screen/][UMA Framebuffer size]] to auto.
-
-#+NAME: Update the linux kernel
-#+BEGIN_SRC shell
-# Download the update
-powershell.exe curl.exe -L -o $env:TEMP\wsl_update_x64.msi https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi
-
-# Install the update automatically
-Start-Process msiexec.exe -Wait -ArgumentList '/I $env:TEMP\wsl_update_x64.msi /quiet'
-#+END_SRC
-
+#+end_quote
 
 Before we install a specific distribution of wsl we need to set the default version of wsl to version 2.
 
 #+NAME: Set default wsl version
-#+BEGIN_SRC 
+#+BEGIN_SRC shell
 powershell.exe wsl --set-default-version 2
 #+END_SRC
 
@@ -56,27 +51,26 @@ powershell.exe wsl --set-default-version 2
 *Note*: It's important to complete this step! This enables us to use ~wslg~ and EMACS gui version.
 #+end_quote
 
-After enabling the wsl feature we need to download the distribution installer and open it.
+You can use the following command to verify the distribution and version you now have installed ~powershell.exe wsl --list -v~.
 
-For my tooling setup I currently use the Ubuntu distribution after historically preferring Debian. The reason for the shift is the native apt installation for an up to date ~emacs~ installation available in Ubuntu.
+The best method to install ~wsl~ is to use the [[https://apps.microsoft.com/detail/9P9TQF7MRM4R][official version available from the Microsoft Store]] in order to receive WSL updates as soon as they're available.
 
-#+NAME: Download and run the ubuntu installer
-#+BEGIN_SRC shell
-# Download the appx package for ubuntu distribution.
-powershell.exe curl.exe -L -o $env:TEMP\ubuntu.appx https://aka.ms/wslubuntu2004
+Alternatively - we can use Powershell to install ~wsl~.
 
-# Install the appx package
-powershell.exe Add-AppxPackage $env:TEMP\ubuntu.appx
-#+END_SRC
+#+NAME: Install wsl
+#+begin_src  shell
+wsl --install
+#+end_src
 
-*Note:* If you encounter an error while adding the package, I have needed to use the ~wsreset~ command in the past to first reset the windows store application.
-  
-After the installer runs we need to manually enter a username and password for the unix account that wsl will use.
+#+begin_quote
+*Note*: We can run the ~wsl --install <distribution name>~ to install a specific distro (such as Ubuntu). For a valid list of distros, we can run ~wsl --list --online~.
+#+end_quote
 
-You can use the following command to verify the distribution and version you now have installed ~powershell.exe wsl --list --verbose~.
+* Install an x server for wsl (deprecated)
 
-
-* Install an x server for wsl
+#+begin_quote
+*Note*: This is for legacy systems - this feature is native to ~wsl~ versions available for Windows 10/11.
+#+end_quote
 
 One of the ways we extend standard wsl functionality is installing an x server on windows to allow graphical applications to be run.
 
