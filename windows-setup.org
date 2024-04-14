@@ -47,13 +47,14 @@ Start-Process msiexec.exe -Wait -ArgumentList '/I $env:TEMP\wsl_update_x64.msi /
 
 Before we install a specific distribution of wsl we need to set the default version of wsl to version 2.
 
-*Note:* you may need to reboot your machine before this command will complete successfully.
-
 #+NAME: Set default wsl version
 #+BEGIN_SRC 
 powershell.exe wsl --set-default-version 2
 #+END_SRC
 
+#+begin_quote
+*Note*: It's important to complete this step! This enables us to use ~wslg~ and EMACS gui version.
+#+end_quote
 
 After enabling the wsl feature we need to download the distribution installer and open it.
 
