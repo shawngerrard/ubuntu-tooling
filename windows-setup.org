@@ -66,6 +66,8 @@ wsl --install
 *Note*: We can run the ~wsl --install <distribution name>~ to install a specific distro (such as Ubuntu). For a valid list of distros, we can run ~wsl --list --online~.
 #+end_quote
 
+For more information on installing ~wsl~, please refer to the [[https://github.com/microsoft/wslg][official Microsoft wslg github repo]].
+
 * Install an x server for wsl (deprecated)
 
 #+begin_quote
