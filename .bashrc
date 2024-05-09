@@ -172,7 +172,7 @@ if ! tmate -S /tmp/default.tmate attach; then
 fi
 
 # Start the ssh-agent and add the ssh key for github auth
-eval `ssh-agent` && ssh-add ~/.ssh/github-ultron
+eval `ssh-agent` && ssh-add ~/.ssh/github-shawngerrard && ssh-add ~/.ssh/ultron-rpi
 
 # Add pulumi to the path env var
 export PATH="$PATH:~/.pulumi/bin"
