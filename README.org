@@ -161,6 +161,53 @@ sudo add-apt-repository multiverse
 sudo apt install steam-installer
 #+end_src
 
+** Optional - Install SQL Server
+
+Download the Microsoft public key, convert ASCII to GPG, then write it into the user keyrings:
+
+#+begin_src bash
+curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+#+end_src
+
+Download and register the Ubuntu repository for SQL Server:
+
+#+begin_src bash
+curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/mssql-server-2022.list | sudo tee /etc/apt/sources.list.d/mssql-server-2022.list
+#+end_src
+
+Install SQL Server from the Ubuntu repository:
+
+#+begin_src bash
+sudo apt-get update
+sudo apt-get install -y mssql-server
+#+end_src
+
+Run the ~mssql~ configuration setup:
+
+#+begin_src bash
+sudo /opt/mssql/bin/mssql-conf setup
+#+end_src
+
+#+begin_quote
+**Note**: The following SQL Server editions are free - _Evaluation_, _Developer_, and _Express_.
+#+end_quote
+
+Once you've followed the prompts, verify the service is running:
+
+#+begin_src bash
+systemctl status mssql-server --no-pager
+#+end_src
+
+#+begin_quote
+**Note**: If you plan to connect remotely, you may need to open the SQL Server TCP port on your firewall.
+#+end_quote
+
+#+begin_quote
+**Note**: Best practice is to create a new login, make it a member of the **sysadmin** server role, and then disable the SA account.
+#+end_quote
+
+For more information, [[https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-ubuntu?view=sql-server-ver16&tabs=ubuntu2204][visit the Microsoft site]].
+
 ** Optional - Install Infrastructure Tools
 
 *** Install Container Runtime (Docker)
