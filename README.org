@@ -189,7 +189,7 @@ sudo /opt/mssql/bin/mssql-conf setup
 #+end_src
 
 #+begin_quote
-**Note**: The following SQL Server editions are free - _Evaluation_, _Developer_, and _Express_.
+*Note*: The following SQL Server editions are free - _Evaluation_, _Developer_, and _Express_.
 #+end_quote
 
 Once you've followed the prompts, verify the service is running:
@@ -199,11 +199,11 @@ systemctl status mssql-server --no-pager
 #+end_src
 
 #+begin_quote
-**Note**: If you plan to connect remotely, you may need to open the SQL Server TCP port on your firewall.
+*Note*: If you plan to connect remotely, you may need to open the SQL Server TCP port on your firewall.
 #+end_quote
 
 #+begin_quote
-**Note**: Best practice is to create a new login, make it a member of the **sysadmin** server role, and then disable the SA account.
+*Note*: Best practice is to create a new login, make it a member of the **sysadmin** server role, and then disable the SA account.
 #+end_quote
 
 For more information, [[https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-ubuntu?view=sql-server-ver16&tabs=ubuntu2204][visit the Microsoft site]].
