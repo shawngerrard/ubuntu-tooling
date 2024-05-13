@@ -161,7 +161,108 @@ sudo add-apt-repository multiverse
 sudo apt install steam-installer
 #+end_src
 
+** Optional - Install MySQL
+
+We can install ~mysql-server~ with the following command:
+
+#+begin_src bash
+sudo apt install mysql-server
+#+end_src
+
+We can check if the service has started with the following command:
+
+#+begin_src bash
+sudo systemctl status mysql.service
+#+end_src
+
+If the service is not active, we can start it with the following command:
+
+#+begin_src bash
+sudo systemctl start mysql.service
+#+end_src
+
+Let's set a ~sql_native_password~ for the local root account.
+
+First, open up the ~mysql~ prompt:
+
+#+begin_src bash
+sudo mysql
+#+end_src
+
+Use this command to alter the root password:
+
+#+begin_src bash
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
+#+end_src
+
+Finally, exit the ~mysql~ prompt:
+
+#+begin_src bash
+exit
+#+end_src
+
+Now, we can run the secure installation for added security features:
+
+#+begin_src bash
+sudo mysql_secure_installation
+#+end_src
+
+Once you've followed through the prompts, you should have a secure ~mysql~ installation.
+
+Now, we must create a new user so we can avoid using the ~root~ account. Re-enter the ~mysql~ prompt:
+
+#+begin_src bash
+sudo mysql
+#+end_src
+
+If the above does not work, try the following:
+
+#+begin_src bash
+mysql -u root -p
+#+end_src
+
+Now we can create the new user:
+
+#+begin_src bash
+CREATE USER 'user'@'localhost' IDENTIFIED BY 'password';
+#+end_src
+
+#+begin_quote
+*Note*: This, by default, will create a user that will authenticate using the ~caching_sha2_password~. This is more secure, however when running ~php~ applications with ~phpMyAdmin~, there may be some errors related to this user. Instead, we can create the user that can authenticate with ~mysql-native-password~:
+
+#+begin_src bash
+CREATE USER 'user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
+#+end_src
+
+#+end_quote
+
+Finally, we need to grant the user specific privileges:
+
+#+begin_src bash
+GRANT <PRIVILEGE> ON <database.table1, database.table2, etc> TO 'username'@'host';
+#+end_src
+
+#+begin_quote
+*Note*: Please avoid using ~ALL PRIVILEGES~ in the grant command as this should be only available to the ~root~ account.
+#+end_quote
+
+And then flush the cached privileges to free up memory (as best practice):
+
+#+begin_src bash
+FLUSH PRIVILEGES;
+#+end_src
+
+Now we can ~exit~ ~mysql~ and log in with the new user using:
+
+#+begin_src bash
+mysql -u <user> -p
+#+end_src
+
 ** Optional - Install SQL Server
+
+#+begin_quote
+*Note*: As of this writing (14/05/2024), MSSQL Server is not compatible with Ubuntu 22.04.
+#+end_quote
 
 Download the Microsoft public key, convert ASCII to GPG, then write it into the user keyrings:
 
