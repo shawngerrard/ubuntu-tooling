@@ -227,6 +227,32 @@ curl checkip.amazonaws.com
 
 4. Apply changes.
 
+*** Enable Uncomplicated Firewall (UFW) and set permissions
+
+UFW is installed by default and must be enabled for it to start:
+
+#+begin_src bash
+sudo ufw enable
+#+end_src
+
+We need to enable access to specific ports from specific ip addresses to continue the accesses we need:
+
+#+begin_src bash
+sudo ufw allow 8322
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw allow OpenSSH
+sudo ufw allow from 192.168.86.0/24 to any port 6443
+#+end_src
+
+Verify and reload the rules to apply them:
+
+#+begin_src bash
+sudo ufw status verbose
+sudo ufw reload
+sudo ufw status verbose
+#+end_src
+
 *** Test connection
 Connect to the host by specifying the port at which the host accepts SSH traffic.
 
